@@ -23,34 +23,23 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard = [[InlineKeyboardButton("🎁 Open Gift Market", web_app=WebAppInfo(url=WEB_APP_URL))]]
         await update.message.reply_text(
             "مرحباً! اضغط أدناه لفتح التطبيق 👇",
-            reply_markup=InlineKeyboardMarkup(keyboard)
+            reply_markup=InlineKeyboardMarkup(keyboard))
     except Exception as e:
         logger.error(f"خطأ في الأمر start: {e}")
 
-async def main():
-    try:
-        logger.info("جاري تشغيل البوت...")
-        app = ApplicationBuilder().token(BOT_TOKEN).build()
-        app.add_handler(CommandHandler("start", start))
-        
-        await app.initialize()
-        await app.start()
-        await app.updater.start_polling()
-        
-        logger.info("البوت يعمل الآن...")
-        
-        # انتظار إلى الأبد
-        while True:
-            await asyncio.sleep(3600)
-            
-    except Exception as e:
-        logger.error(f"تعطل البوت: {e}")
-    finally:
-        if 'app' in locals():
-            await app.shutdown()
+async def run_bot():
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    await app.run_polling()
 
 if __name__ == "__main__":
+    # إضافة هذه السطور للتعامل مع المنفذ المطلوب
+    port = int(os.environ.get('PORT', 5000))
+    logger.info(f"Using port: {port}")
+    
     try:
-        asyncio.run(main())
+        asyncio.run(run_bot())
     except KeyboardInterrupt:
         logger.info("إيقاف البوت...")
+    except Exception as e:
+        logger.error(f"خطأ غير متوقع: {e}")
