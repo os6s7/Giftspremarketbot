@@ -43,3 +43,14 @@ if __name__ == "__main__":
         logger.info("إيقاف البوت...")
     except Exception as e:
         logger.error(f"خطأ غير متوقع: {e}")
+        from fastapi import FastAPI
+import uvicorn
+
+app = FastAPI()
+
+@app.get("/")
+def home():
+    return {"status": "Bot is running"}
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
