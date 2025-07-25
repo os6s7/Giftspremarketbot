@@ -12,20 +12,25 @@ logger = logging.getLogger(__name__)
 
 WEB_APP_URL = os.getenv("WEB_APP_URL", "https://your-web-app.onrender.com")
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    button = InlineKeyboardButton(
-        "Open Web App", 
-        web_app=WebAppInfo(url=WEB_APP_URL)
-    )
-    await update.message.reply_text(
-        "Click below to launch the app:",
-        reply_markup=InlineKeyboardMarkup([[button]])
-    )
-
 def main():
-    app = ApplicationBuilder().token(os.getenv("BOT_TOKEN")).build()
-    app.add_handler(CommandHandler("start", start))
-    app.run_polling()
+    # Create application
+    application = ApplicationBuilder().token(os.getenv("BOT_TOKEN")).build()
+    
+    # Add command handler
+    async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        button = InlineKeyboardButton(
+            "Open Web App",
+            web_app=WebAppInfo(url=WEB_APP_URL)
+        )
+        await update.message.reply_text(
+            "Click below to launch:",
+            reply_markup=InlineKeyboardMarkup([[button]])
+        )
+    
+    application.add_handler(CommandHandler("start", start))
+    
+    # Run application
+    application.run_polling()
 
 if __name__ == "__main__":
     main()
