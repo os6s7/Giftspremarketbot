@@ -24,20 +24,33 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             "مرحباً! اضغط أدناه لفتح التطبيق 👇",
             reply_markup=InlineKeyboardMarkup(keyboard)
-        )
     except Exception as e:
         logger.error(f"خطأ في الأمر start: {e}")
 
-def main():
+async def main():
     try:
         logger.info("جاري تشغيل البوت...")
         app = ApplicationBuilder().token(BOT_TOKEN).build()
         app.add_handler(CommandHandler("start", start))
         
-        # تشغيل البوت بشكل متزامن
-        app.run_polling()
+        await app.initialize()
+        await app.start()
+        await app.updater.start_polling()
+        
+        logger.info("البوت يعمل الآن...")
+        
+        # انتظار إلى الأبد
+        while True:
+            await asyncio.sleep(3600)
+            
     except Exception as e:
         logger.error(f"تعطل البوت: {e}")
+    finally:
+        if 'app' in locals():
+            await app.shutdown()
 
 if __name__ == "__main__":
-    main()
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("إيقاف البوت...")
