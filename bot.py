@@ -1,41 +1,38 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+from telegram import Update, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 import os
 import logging
 import asyncio
 
-# إعدادات متقدمة للتسجيل
+# Setup logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-if not BOT_TOKEN:
-    logger.error("❌ BOT_TOKEN غير موجود!")
-    exit(1)
-
-WEB_APP_URL = "https://premarket.neocities.org"
+WEB_APP_URL = "https://your-web-app-url.onrender.com"  # Update this with your actual URL
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    try:
-        keyboard = [[InlineKeyboardButton("🎁 Open Gift Market", web_app=WebAppInfo(url=WEB_APP_URL))]]
-        await update.message.reply_text(
-            "مرحباً! اضغط أدناه لفتح التطبيق 👇",
-            reply_markup=InlineKeyboardMarkup(keyboard))
-    except Exception as e:
-        logger.error(f"خطأ في الأمر start: {e}")
+    button = InlineKeyboardButton(
+        "Open Web App",
+        web_app=WebAppInfo(url=WEB_APP_URL)
+    )
+    await update.message.reply_text(
+        "Please click the button below to open the app:",
+        reply_markup=InlineKeyboardMarkup([[button]])
+    )
 
-async def run_bot():
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    await app.run_polling()
+async def main():
+    """Run the bot."""
+    # Create the Application
+    application = ApplicationBuilder().token(os.getenv("BOT_TOKEN")).build()
+    
+    # Add handlers
+    application.add_handler(CommandHandler("start", start))
+    
+    # Run the bot until the user presses Ctrl-C
+    await application.run_polling()
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(run_bot())
-    except KeyboardInterrupt:
-        logger.info("إيقاف البوت...")
-    except Exception as e:
-        logger.error(f"خطأ غير متوقع: {e}")
+    asyncio.run(main())
