@@ -1,36 +1,36 @@
-from telegram import Update, WebAppInfo, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 import os
-import logging
+import threading
+from flask import Flask
+from aiogram import Bot, Dispatcher, types
+from aiogram.utils import executor
 
-# Configure logging
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
-logger = logging.getLogger(__name__)
+# 🧠 بوت تليگرام
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher(bot)
 
-WEB_APP_URL = os.getenv("WEB_APP_URL", "https://giftspremarketbot.onrender.com")
+# ✅ رسالة start مع زر ميني أب
+@dp.message_handler(commands=['start'])
+async def handle_start(message: types.Message):
+    keyboard = types.InlineKeyboardMarkup()
+    keyboard.add(types.InlineKeyboardButton(
+        text="🎁 افتح الميني أب",
+        web_app=types.WebAppInfo(url="https://your-mini-app.onrender.com")  # 🔁 عدل هذا الرابط لرابط الواجهة مالتك
+    ))
+    await message.answer("أهلاً بك! اضغط الزر لتجربة الميني أب:", reply_markup=keyboard)
 
-def main():
-    # Create application
-    application = ApplicationBuilder().token(os.getenv("BOT_TOKEN")).build()
-    
-    # Add command handler
-    async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-        button = InlineKeyboardButton(
-            "Open Web App",
-            web_app=WebAppInfo(url=WEB_APP_URL)
-        )
-        await update.message.reply_text(
-            "Click below to launch:",
-            reply_markup=InlineKeyboardMarkup([[button]])
-        )
-    
-    application.add_handler(CommandHandler("start", start))
-    
-    # Run application
-    application.run_polling()
+# 🚀 بدء البوت عبر polling
+def run_bot():
+    executor.start_polling(dp, skip_updates=True)
 
-if __name__ == "__main__":
-    main()
+# 🌐 سيرفر ويب بسيط فقط حتى ما يطلع 404 في Render
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return "🤖 البوت يعمل حالياً بنجاح على Render!"
+
+# 📦 تشغيل Flask + Aiogram بنفس الوقت
+if __name__ == '__main__':
+    threading.Thread(target=run_bot).start()
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
