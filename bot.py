@@ -10,7 +10,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-WEB_APP_URL = os.getenv("WEB_APP_URL", "https://your-web-app.onrender.com")
+WEB_APP_URL = os.getenv("WEB_APP_URL", "https://giftspremarketbot.onrender.com")
 
 def main():
     # Create application
